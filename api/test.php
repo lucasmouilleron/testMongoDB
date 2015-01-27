@@ -26,6 +26,6 @@ for ($i=0; $i < 10000; $i++) {
 }
 
 //$request = Requests::get(Tools::getAPIURL()."/shops/".TEST_LAT."/".TEST_LNG);
-//var_dump($request->body);
+var_dump($request->body);
 
 ?>

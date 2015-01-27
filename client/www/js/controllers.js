@@ -11,13 +11,12 @@ controllers.controller("appController", function($scope, miscsService, APIServic
 /////////////////////////////////////////////////////////////////////
 controllers.controller("homeController", function($scope, $ionicModal, growl, $ionicLoading, $state, miscsService, APIService) {
 
-    if (!APIService.isAuthentificated()) {
+    if (!APIService.isAuthentificated() && config.ADMIN_MODE) {
 
         $scope.buttonText = "Log in";
 
         $scope.loginData = {
-            host:config.API_HOST+"/"+config.API_URL,
-            port:config.API_PORT,
+            url:"http://"+config.API_HOST+"/"+config.API_URL,
             username:"",
             password:""
         };
@@ -32,7 +31,7 @@ controllers.controller("homeController", function($scope, $ionicModal, growl, $i
 
         $scope.doLogin = function() {
             miscsService.loading("Working", "fa-cloud","faa-flash");
-            APIService.login($scope.loginData.host, $scope.loginData.port, $scope.loginData.username, $scope.loginData.password).then(function(token) {
+            APIService.login($scope.loginData.url, $scope.loginData.username, $scope.loginData.password).then(function(token) {
                 miscsService.hideLoading();
                 if(APIService.isAuthentificated()) {
                     $scope.modal.hide();
@@ -150,7 +149,7 @@ controllers.controller("shopsController", function($scope, $ionicLoading, $ionic
     $scope.filter = {};
 
     $scope.getShops = function() {
-        APIService.get("/shops/"+config.TEST_LAT+"/"+config.TEST_LNG).then(function(shops) {
+        APIService.get("/shops").then(function(shops) {
             $scope.dataFetched = true;
             $scope.shops = shops;
             $scope.$broadcast("scroll.refreshComplete");
@@ -161,6 +160,10 @@ controllers.controller("shopsController", function($scope, $ionicLoading, $ionic
             miscsService.hideLoading();
         });
     };
+
+    //TODO PROGRESSIVE LOAD + FILTER
+    // ON CLICK EDIT
+    // AND ADD
 
     $scope.doRefresh = function() {
         miscsService.loading("Working", "fa-cloud","faa-flash");

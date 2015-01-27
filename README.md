@@ -20,17 +20,18 @@ Authentication
 
 Tables
 ------
-- `mongo --host the_host --port 27017 --username admin --password iamagod admin --authenticationDatabase admin`
+- `mongo --username admin --password iamagod admin --authenticationDatabase admin`
 - `use main`
 - `db.shops.ensureIndex({"loc":"2dsphere"})`
 - `db.shops.ensureIndex({"name":"text"})`
 - `db.shops.ensureIndex({"address.zip":1})`
 - `db.shops.ensureIndex({"address.city":1})`
+- `db.shops.ensureIndex({"date":1})`
 
 Operations
 ----------
-- Dump : `mongodump --host the_host --port 27017 --username admin --password iamagod --authenticationDatabase admin --db main --collection shops`
-- Restore : `mongorestore --host the_host --port 27017 --username admin --password iamagod --db main --authenticationDatabase admin --collection shops dump/test/shops.bson`
+- Dump : `mongodump --username admin --password iamagod --authenticationDatabase admin --db main --collection shops`
+- Restore : `mongorestore --username admin --password iamagod --db main --authenticationDatabase admin --collection shops dump/test/shops.bson`
 
 
 Install php api
@@ -54,10 +55,11 @@ Map API
 
 Miscs
 -----
+- //<?php $cursor = $shops->find()->sort(array("_id"=>-1))->limit($limit)->skip($skip);
 - console.log(leafletEvents.getAvailableMapEvents());
 - console.log(leafletEvents.getAvailableMarkerEvents());
 - http://l-lin.github.io/font-awesome-animation/
-- `sudo mongod --fork --logpath /var/log/mongodb.log --port 27017 --dbpath /Volumes/Data/Users/lmouille/Projects/haveidols/testMongoDB/data --auth`
-- `sudo mongod --fork --logpath /var/log/mongodb.log --port 27017 --dbpath /Users/lucas/Projects/haveidols/testMongoDB/data --auth`
+- `sudo mongod --fork --logpath /var/log/mongodb.log --dbpath /Volumes/Data/Users/lmouille/Projects/haveidols/testMongoDB/data --auth`
+- `sudo mongod --fork --logpath /var/log/mongodb.log --dbpath /Users/lucas/Projects/haveidols/testMongoDB/data --auth`
 - `mongo --host localhost --port 27017 --username admin --password iamagod admin --authenticationDatabase admin`
 - `mongodump --host localhost --port 27017 --username admin --password iamagod --authenticationDatabase admin --db main --collection shops`

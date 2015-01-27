@@ -18,10 +18,10 @@
         <ion-item nav-clear menu-close href="#/app/map">
           <i class="icon fa fa-map-marker"></i> Around me
         </ion-item>
-        <ion-item nav-clear menu-close href="#/app/shops">
+        <ion-item nav-clear menu-close href="#/app/shops" ng-if="config.ADMIN_MODE">
           <i class="icon fa fa-search"></i> Find
         </ion-item>
-        <ion-item nav-clear menu-close ng-click="logout()">
+        <ion-item nav-clear menu-close ng-click="logout()" ng-if="config.ADMIN_MODE">
           <i class="icon fa fa-unlock-alt"></i> Logout
         </ion-item>
       </ion-list>

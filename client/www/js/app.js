@@ -14,7 +14,7 @@ app.run(function($ionicPlatform, $rootScope, $state, APIService) {
     $rootScope.config = config;
 
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
-        if(toState.name != "app.home" && !APIService.isAuthentificated()) {
+        if(toState.name != "app.home" && !APIService.isAuthentificated() && config.ADMIN_MODE) {
             if(toState.name != "app.home") {
                 event.preventDefault();
                 $state.go("app.home");

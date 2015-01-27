@@ -24,8 +24,8 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
 	return {
 
         ////////////////////////////////////////////////////////////////////////////////
-        login: function(host, port, username, password) {
-        	this.savePrefs(host, port, username, password);
+        login: function(url, username, password) {
+        	this.savePrefs(url, username, password);
         	var deferred = $q.defer();
         	try {
         		var that = this;
@@ -56,12 +56,11 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         },
 
         ////////////////////////////////////////////////////////////////////////////////
-        savePrefs: function(host, port, username, password)
+        savePrefs: function(url, username, password)
         {
         	localStorage.setItem("password", password);
         	localStorage.setItem("username", username);
-        	localStorage.setItem("host", host);
-        	localStorage.setItem("port", port);
+        	localStorage.setItem("url", url);
         },
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -75,18 +74,17 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         logout: function()
         {
         	localStorage.removeItem("authentificated");
+            localStorage.removeItem("url");
         	localStorage.removeItem("password");
-        	localStorage.removeItem("host");
-        	localStorage.removeItem("port");
         	localStorage.removeItem("username");
+            localStorage.removeItem("token");
         },
 
         ////////////////////////////////////////////////////////////////////////////////
         post: function(route, params, successCallback, errorCallback) {
-            var url = "http://"+localStorage.getItem("host")+"/"+route;
             $http({
                 method: "POST",
-                url: url,
+                url: this.getURL(route),
                 data: tools.serializeData(params),
                 headers: {"Content-Type": "application/x-www-form-urlencoded", "token":localStorage.getItem("token")}
             })
@@ -101,10 +99,9 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         ////////////////////////////////////////////////////////////////////////////////
         get: function(route, successCallback, errorCallback) {
         	var deferred = $q.defer();
-            var url = "http://"+localStorage.getItem("host")+"/"+route;
             $http({
                 method: "GET",
-                url: url,
+                url: this.getURL(route),
                 headers: {"token":localStorage.getItem("token")}
             })
             .success(function(data, status) {
@@ -114,6 +111,15 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
                 deferred.reject(new Error(error));
             });
             return deferred.promise;
+        },
+
+        ////////////////////////////////////////////////////////////////////////////////
+        getURL: function(route) {
+            var url = "http://"+config.API_HOST+"/"+config.API_URL;
+            if(localStorage.getItem("url")) {
+                url = localStorage.getItem("url");
+            }
+            return url+"/"+route;
         }
     }
 });

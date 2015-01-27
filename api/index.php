@@ -12,9 +12,7 @@ require_once __DIR__."/config/config.php";
 require_once __DIR__."/libs/vendor/palanik/corsslim/CorsSlim.php";
 
 /////////////////////////////////////////////////////////////////
-$protectedRoutes = array("private/.+", "private","shop/edit.+","shop/edit/.+", "shops");
-
-//<?php $cursor = $shops->find()->sort(array("_id"=>-1))->limit($limit)->skip($skip);
+$protectedRoutes = array("private/.+", "private","shop/edit.+","shop/edit/.+");
 
 /////////////////////////////////////////////////////////////////
 // SLIM CONFIG AND MIDDLEWARES
@@ -60,7 +58,8 @@ $app->post("/shop/edit", function () use ($app) {
     $street = filter_var($app->request->post("street"), FILTER_SANITIZE_STRING);
     $lat = floatval($app->request->post("lat"));
     $lng = floatval($app->request->post("lng"));
-    $document = array("name" => $name, "address" => array("street" => $street, "zip" => $zip, "city" => $city), "loc" => array("type" => "Point", "coordinates" => array($lat, $lng)));
+    $date = time()*1000;
+    $document = array("name" => $name, "date"=> $date, "address" => array("street" => $street, "zip" => $zip, "city" => $city), "loc" => array("type" => "Point", "coordinates" => array($lat, $lng)));
     try {
         $shopsDB = Tools::getDB()->shops;
         $result = $shopsDB->insert($document);
@@ -68,6 +67,17 @@ $app->post("/shop/edit", function () use ($app) {
     } catch(Exception $e) {
         echo json_encode(0);
     }
+});
+
+/////////////////////////////////////////////////////////////////
+$app->get("/shops", function () use ($app) {
+    $shops = [];
+    $shopsDB = Tools::getDB()->shops;
+    $results = $shopsDB->find()->sort(array("date" => -1))->limit(MAX_STORES);
+    foreach($results as $result) {
+        $shops[] = $result;
+    }
+    echo json_encode($shops);
 });
 
 /////////////////////////////////////////////////////////////////
