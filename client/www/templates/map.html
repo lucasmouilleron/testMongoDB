@@ -1,0 +1,12 @@
+<ion-view view-title="Around me">
+
+<ion-nav-buttons side="right">
+<button ng-click="locate()" class="button button-icon icon ion-pinpoint"></button>
+</ion-nav-buttons>
+
+<ion-content data-tap-disabled="true">
+
+<leaflet id="map" defaults="map.defaults" bounds="map.bounds" center="map.center" markers="map.markers" ng-if="map"></leaflet>
+</ion-content>
+
+</ion-view>

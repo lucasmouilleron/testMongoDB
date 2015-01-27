@@ -1,0 +1,25 @@
+<ion-modal-view>
+<ion-header-bar>
+
+<h1 class="title">Shop</h1>
+<button class="button button-icon icon ion-close faa-ring animated-hover" ng-click="closeShop()"></button>
+</ion-header-bar>
+<ion-content>
+
+<ion-list>
+
+<ion-item class="item-text-wrap">
+<h2>{{shopDetail.name}}</h2>
+</ion-item>
+<ion-item class="item-text-wrap">
+<p>{{shopDetail.address.street}}</p>
+<p>{{shopDetail.address.zip}} {{shopDetail.address.city}}</p>
+</ion-item>
+<ion-item>
+<leaflet id="mapDetail" defaults="mapDetail.defaults" center="mapDetail.center" markers="mapDetail.markers" ng-if="mapDetail"></leaflet>
+</ion-item>
+
+</ion-list>
+
+</ion-content>
+</ion-modal-view>

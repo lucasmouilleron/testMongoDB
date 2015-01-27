@@ -1,0 +1,41 @@
+{
+
+  "appName":"testMongoDB",
+  
+  "shellBinPath":"/bin/sh",
+
+  "version": {
+    "propertyName":"APPLICATION_VERSION",
+    "propertyFiles": ["../www/index.html","../www/index-dev.html"]
+  },
+
+  "indexFile": "../www/index.html",
+  "indexDebugFile": "../www/index-dev.html",
+
+  "dataDir":"/Volumes/Data/Users/lmouille/Projects/haveidols/testMongoDB/data",
+  "dataLogFile":"/var/log/mongodb.log",
+
+  "jsDir":"../www/js",
+  "sassDir":"../www/css",
+  "imgSrcDir": "../www/img",
+  "cssDir":"../www/css",
+  "imgDir": "../www/img",
+  "fontsDir": "../www/fonts",
+  
+  "copyFiles":{
+    "tmp-bower-vendors/ionic/fonts/*":"../www/fonts",
+    "tmp-bower-vendors/components-font-awesome/fonts/*":"../www/fonts",
+    "tmp-bower-vendors/moment/min/moment.min.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/ionic/js/ionic.bundle.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/angular-growl-v2/build/angular-growl.min.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/leaflet/dist/leaflet.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/angular-leaflet-directive/dist/angular-leaflet-directive.js":"../www/js/libs/vendor"
+  },
+
+  "installCommands":[
+  ],
+
+  "cleanFiles":["../dist","node_modules", ".sass-cache", "../www/js/libs/vendor"],
+  "cleanCommands": [
+  ]
+}

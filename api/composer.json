@@ -1,0 +1,12 @@
+{
+    "name": "testMongoDB",
+    "require": {
+        "slim/slim": "2.*",
+        "rmccue/requests": ">=1.0",
+        "firebase/php-jwt": "~1.0",
+        "palanik/corsslim": "0.0.1"
+    },
+    "config": {
+        "vendor-dir": "libs/vendor"
+    }
+}
