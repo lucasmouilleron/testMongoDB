@@ -10,6 +10,14 @@ var config = {
     API_URL: "testMongoDB/api",
 
     ////////////////////////////////////////////////////////////////////////////////
+    MAP_APP_ID: "5twHHror0c2KgeiMxSzJ",
+    MAP_APP_CODE: "fTVEFgtUSFBWnQuTkuwoJg",
+    MAP_TILE_URL: "http://1.base.maps.cit.api.here.com/maptile/2.1/maptile/newest/normal.day.transit/{z}/{x}/{y}/256/png8?app_id=5twHHror0c2KgeiMxSzJ&app_code=fTVEFgtUSFBWnQuTkuwoJg",
+    //MAP_TILE_URL: "http://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png",
+    //MAP_TILE_URL: "https://{s}.tiles.mapbox.com/v4/lucasmouilleron.l2c5ld66/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibHVjYXNtb3VpbGxlcm9uIiwiYSI6IndGRklOQVUifQ.3cpqRGEgKBZL0gkTHzKOhg",
+    
+
+    ////////////////////////////////////////////////////////////////////////////////
     TEST_LAT: 45.7592410,
     TEST_LNG: 4.8411810,
     DEFAULT_ZOOM: 16,

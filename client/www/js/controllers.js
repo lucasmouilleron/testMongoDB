@@ -57,7 +57,7 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
         miscsService.hideLoading();
         $scope.map = {
             zoom: config.DEFAULT_ZOOM,
-            defaults: {tileLayer: "http://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png", maxZoom: 18, minZoom: 15, zoomControlPosition: "bottomleft"},
+            defaults: {tileLayer: config.MAP_TILE_URL, maxZoom: 18, minZoom: 15, zoomControlPosition: "bottomleft"},
             events: {
                 map: {enable:  ["moveend", "zoomend", "contextmenu"], logic: "emit"},
                 markers: {enable: ["click"]}
@@ -66,7 +66,7 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
         };
         $scope.mapDetail = {
             zoom: config.DEFAULT_DETAIL_ZOOM,
-            defaults: {tileLayer: "http://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png", dragging: false, maxZoom: 18, zoomControlPosition: "bottomleft", zoomControl:false}
+            defaults: {tileLayer: config.MAP_TILE_URL, dragging: false, maxZoom: 18, zoomControlPosition: "bottomleft", zoomControl:false}
         };
         $scope.locate();
     };

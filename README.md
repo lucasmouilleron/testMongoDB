@@ -47,15 +47,16 @@ Install php api
     - `mv composer.phar /usr/local/bin/composer`
 - Install API deps : `cd api && composer install`
 
-
+Map API
+-------
+- Demo account created on https://developer.here.com/myapps/app-details/5twHHror0c2KgeiMxSzJ#/
+- More tiles http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 
 Miscs
 -----
-- http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 - console.log(leafletEvents.getAvailableMapEvents());
 - console.log(leafletEvents.getAvailableMarkerEvents());
 - http://l-lin.github.io/font-awesome-animation/
-- https://github.com/calendee/ionic-leafletjs-map-demo/blob/master/js/controllers/mapController.js
 - `sudo mongod --fork --logpath /var/log/mongodb.log --port 27017 --dbpath /Volumes/Data/Users/lmouille/Projects/haveidols/testMongoDB/data --auth`
 - `sudo mongod --fork --logpath /var/log/mongodb.log --port 27017 --dbpath /Users/lucas/Projects/haveidols/testMongoDB/data --auth`
 - `mongo --host localhost --port 27017 --username admin --password iamagod admin --authenticationDatabase admin`
