@@ -6,10 +6,10 @@ services.factory("locationService", function($state, $q, $http, $ionicHistory) {
             try {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     //$cordovaGeolocation.getCurrentPosition().then(function (position) 
-                    deferred.resolve({lat: position.coords.latitude, lng: position.coords.longitude});
-                }, function(err) {
-                    deferred.reject(new Error("can't retrieve location"));
-                });
+                        deferred.resolve({lat: position.coords.latitude, lng: position.coords.longitude});
+                    }, function(err) {
+                        deferred.reject(new Error("can't retrieve location"));
+                    });
             }
             catch(e) {
                 deferred.reject(new Error("can't retrieve location : "+e));
@@ -75,8 +75,8 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         {
         	localStorage.removeItem("authentificated");
             localStorage.removeItem("url");
-        	localStorage.removeItem("password");
-        	localStorage.removeItem("username");
+            localStorage.removeItem("password");
+            localStorage.removeItem("username");
             localStorage.removeItem("token");
         },
 
@@ -125,22 +125,46 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
 });
 
 /////////////////////////////////////////////////////////////////////
-services.factory("miscsService", function($state, $ionicHistory, $ionicLoading) {
+services.factory("miscsService", function($state, $ionicHistory, $interval, $ionicLoading) {
 	return {
-		goWithoutHistory: function(newState) {
-			$ionicHistory.nextViewOptions({
-				disableAnimate: true,
-				disableBack: true
-			});   
-			$state.go(newState, {}, {reload:true});
-		},
+
+        loaderCount: 0,
+        lastShow: 0,
+        minDuration: 400,
+
+        goWithoutHistory: function(newState) {
+            $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack: true
+            });   
+            $state.go(newState, {}, {reload:true});
+        },
 
         loading: function(loadingText, loadingIcon, loadingAnimation) {
-            $ionicLoading.show({template: "<i class='icon fa "+loadingIcon+" "+loadingAnimation+" animated'></i> "+loadingText});
+            this.lastShow = Date.now();
+            this.loaderCount++;
+            if(!loadingIcon) {
+                loadingIcon = "fa-cloud";
+            }
+            if(!loadingAnimation) {
+                loadingAnimation = "faa-flash";
+            }
+            $ionicLoading.show({perso:"lucas", template: "<i class='icon fa "+loadingIcon+" "+loadingAnimation+" animated'></i> "+loadingText});
         },
 
         hideLoading: function() {
-            $ionicLoading.hide();
+            this.loaderCount--;
+            if(this.loaderCount < 0) {
+                this.loaderCount = 0;
+            }
+            var that = this;
+            var ivl = $interval(function() {
+                if(Date.now() - that.lastShow > that.minDuration && that.loaderCount <= 0) {
+                    $interval.cancel(ivl);
+                    $ionicLoading.hide();
+                }
+            }, 100);
+
         }
-	}
+    }
 });

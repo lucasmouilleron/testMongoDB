@@ -21,8 +21,8 @@ var config = {
     
 
     ////////////////////////////////////////////////////////////////////////////////
-    TEST_LAT: 45.7592410,
-    TEST_LNG: 4.8411810,
+    DEFAULT_LAT: 45.7592400,
+    DEFAULT_LNG: 4.8411810,
     DEFAULT_ZOOM: 16,
     DEFAULT_DETAIL_ZOOM: 18
 };

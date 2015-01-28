@@ -8,8 +8,8 @@ define("DB_PASSWORD", "iamagod");
 define("DB_BASE","main");
 
 /////////////////////////////////////////////////////////////////
-define("TEST_LAT", 45.759241);
-define("TEST_LNG", 4.841181000000006);
+define("DEFAULT_LAT", 45.759241);
+define("DEFAULT_LNG", 4.841181000000006);
 
 /////////////////////////////////////////////////////////////////
 define("DEBUG", true);

@@ -1,0 +1,15 @@
+<ion-view view-title="Manage">
+<ion-content>
+
+<div ng-if="dataFetched" class="anim-fade">
+    <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
+    <ion-list>
+    <ion-item ng-repeat="shop in shops" class="item-text-wrap">
+    {{shop}}
+</ion-item>
+</ion-list>
+<ion-infinite-scroll on-infinite="doRefreshBottom()" ng-if="!end" distance="1%"></ion-infinite-scroll>
+</div>
+
+</ion-content>
+</ion-view>

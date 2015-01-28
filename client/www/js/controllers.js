@@ -48,11 +48,12 @@ controllers.controller("homeController", function($scope, $ionicModal, growl, $i
 /////////////////////////////////////////////////////////////////////
 controllers.controller("mapController", function($scope, $ionicLoading, $ionicModal, $timeout, $q, growl, APIService, leafletEvents, miscsService, locationService) {
 
+    $scope.me = {};
+    $scope.me.centerLat = config.DEFAULT_LAT;
+    $scope.me.centerLng = config.DEFAULT_LNG;
+
     $scope.init = function() {
 
-        $scope.me = {};
-        $scope.me.centerLat = config.TEST_LAT;
-        $scope.me.centerLng = config.TEST_LNG;
         miscsService.hideLoading();
         $scope.map = {
             zoom: config.DEFAULT_ZOOM,
@@ -71,28 +72,36 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
     };
 
     $scope.locate = function() {
-        var lat = config.TEST_LAT;
-        var lng = config.TEST_LNG;
+        var lat, lng;
         miscsService.loading("Acquiring location", "fa-location-arrow","faa-ring");
         locationService.getLocation().then(function(position) {
             lat = position.lat;
-            lng= position.lng;
+            lng = position.lng;
         }).finally(function() {
+            console.log("finished", lat, lng, $scope.map.zoom);
+            if(lat == undefined || lng == undefined) {
+                lat = config.DEFAULT_LAT;
+                lng = config.DEFAULT_LNG;
+                growl.error("Can't locate !");
+            }
             miscsService.hideLoading();
             $scope.map.center = {lat : lat, lng : lng, zoom: $scope.map.zoom};
+            
         });
     };
 
     $scope.$on("leafletDirectiveMap.moveend", function(event, moveEvent){
         var mapID = moveEvent.leafletEvent.target._container.id;
-        if(mapID == "map" && $scope.me.centerLat != $scope.map.center.lat && $scope.me.centerLng != $scope.map.center.lng) {
-            $scope.me.SWLat = $scope.map.bounds.southWest.lat;
-            $scope.me.SWLng = $scope.map.bounds.southWest.lng;
-            $scope.me.NELat = $scope.map.bounds.northEast.lat;
-            $scope.me.NELng = $scope.map.bounds.northEast.lng;
-            $scope.me.centerLat = $scope.map.center.lat;
-            $scope.me.centerLng = $scope.map.center.lng;
-            $scope.getShops($scope.me.SWLat, $scope.me.SWLng, $scope.me.NELat, $scope.me.NELng);
+        if(mapID == "map" && $scope.me.centerLat != $scope.map.center.lat && $scope.me.centerLng != $scope.map.center.lng && $scope.map.bounds) {
+            $timeout(function() {
+                $scope.me.SWLat = $scope.map.bounds.southWest.lat;
+                $scope.me.SWLng = $scope.map.bounds.southWest.lng;
+                $scope.me.NELat = $scope.map.bounds.northEast.lat;
+                $scope.me.NELng = $scope.map.bounds.northEast.lng;
+                $scope.me.centerLat = $scope.map.center.lat;
+                $scope.me.centerLng = $scope.map.center.lng;
+                $scope.getShops($scope.me.SWLat, $scope.me.SWLng, $scope.me.NELat, $scope.me.NELng);
+            });
         }
     });
 
@@ -122,12 +131,12 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
 
     $scope.getShops = function(SWLat, SWLng, NELat, NELng) {
         miscsService.loading("Working", "fa-cloud","faa-flash");
-        APIService.get("/shops/"+$scope.me.SWLat+"/"+$scope.me.SWLng+"/"+$scope.me.NELat+"/"+$scope.me.NELng).then(function(shops) {
-            growl.info("Shops loaded for "+SWLat+" and "+SWLng+" and "+NELat+" and "+NELng);
+        APIService.get("/shops/"+SWLat+"/"+SWLng+"/"+NELat+"/"+NELng).then(function(shops) {
+            growl.info(shops.length + " shops loaded for "+SWLat+" and "+SWLng+" and "+NELat+" and "+NELng);
             $scope.map.markers = [];
             $timeout(function() {
                 for (var i = 0; i < shops.length; i++) {
-                    var marker = {"shop": shops[i], "lat": shops[i].loc.coordinates[0], "lng": shops[i].loc.coordinates[1]};
+                    var marker = {shop: shops[i], bounceOnAdd:true, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
                     $scope.map.markers.push(marker);
                 }
             });
@@ -143,22 +152,37 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
 });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("shopsController", function($scope, $ionicLoading, $ionicModal, growl, APIService, miscsService) {
+controllers.controller("manageController", function($scope, $ionicLoading, $ionicModal, $timeout, growl, APIService, miscsService) {
 
     $scope.dataFetched = false;
+    $scope.loading = false;
     $scope.filter = {};
+    $scope.page = -1;
+    $scope.shops = [];
+    $scope.end = false;
 
     $scope.getShops = function() {
-        APIService.get("/shops").then(function(shops) {
-            $scope.dataFetched = true;
-            $scope.shops = shops;
-            $scope.$broadcast("scroll.refreshComplete");
-        }).catch(function(error) {
-            growl.error("Error : "+error);
-            $scope.$broadcast("scroll.refreshComplete");
-        }).finally(function() {
-            miscsService.hideLoading();
-        });
+        if(!$scope.loading) {
+            $scope.loading = true;
+            $scope.page++;
+            APIService.get("/shops/"+$scope.page).then(function(shops) {
+                if(shops.length) {
+                    $scope.dataFetched = true;
+                    growl.info(shops.length + " shops loaded for page "+$scope.page);
+                    Array.prototype.push.apply($scope.shops, shops);
+                }
+                else {
+                    $scope.end = true;
+                }
+            }).catch(function(error) {
+                growl.error("Error : "+error);
+            }).finally(function() {
+                $scope.$broadcast("scroll.refreshComplete");
+                $scope.$broadcast("scroll.infiniteScrollComplete");
+                miscsService.hideLoading();
+                $scope.loading = false;
+            });
+        }
     };
 
     //TODO PROGRESSIVE LOAD + FILTER
@@ -170,7 +194,13 @@ controllers.controller("shopsController", function($scope, $ionicLoading, $ionic
         $scope.getShops();
     };
 
+    $scope.doRefreshBottom = function() {
+        $scope.getShops();
+    }
+
     $scope.doRefreshPull = function() {
+        $scope.shops = [];
+        $scope.page = -1;
         $scope.getShops();
     };
 

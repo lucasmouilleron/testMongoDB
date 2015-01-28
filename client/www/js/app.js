@@ -6,7 +6,7 @@ var services = angular.module("app.services", []);
 var filters = angular.module("app.filters", []);
 
 /////////////////////////////////////////////////////////////////////
-app.run(function($ionicPlatform, $rootScope, $state, APIService) {
+app.run(function($ionicPlatform, $rootScope, $state, APIService, miscsService) {
 
     config.app = ionic.Platform.isWebView();
     config.device = ionic.Platform.isIOS() || ionic.Platform.isAndroid();
@@ -23,7 +23,6 @@ app.run(function($ionicPlatform, $rootScope, $state, APIService) {
     });
 
     $ionicPlatform.ready(function() {
-        
     });
 
 });
@@ -49,12 +48,12 @@ app.config(function($stateProvider, $urlRouterProvider) {
         }
     });
 
-    $stateProvider.state("app.shops", {
-        url: "/shops",
+    $stateProvider.state("app.manage", {
+        url: "/manage",
         views: {
             "menuContent": {
-                templateUrl: "templates/shops.html",
-                controller: "shopsController"
+                templateUrl: "templates/manage.html",
+                controller: "manageController"
             }
         }
     }); 

@@ -70,10 +70,11 @@ $app->post("/shop/edit", function () use ($app) {
 });
 
 /////////////////////////////////////////////////////////////////
-$app->get("/shops", function () use ($app) {
+$app->get("/shops/:page", function ($page) use ($app) {
     $shops = [];
     $shopsDB = Tools::getDB()->shops;
-    $results = $shopsDB->find()->sort(array("date" => -1))->limit(MAX_STORES);
+    $step = MAX_STORES;
+    $results = $shopsDB->find()->sort(array("date" => -1))->limit($step)->skip($page*$step);
     foreach($results as $result) {
         $shops[] = $result;
     }
