@@ -30,7 +30,7 @@ controllers.controller("homeController", function($scope, $ionicModal, growl, $i
         });
 
         $scope.doLogin = function() {
-            miscsService.loading("Working", "fa-cloud","faa-flash");
+            miscsService.loading("Working");
             APIService.login($scope.loginData.url, $scope.loginData.username, $scope.loginData.password).then(function(token) {
                 miscsService.hideLoading();
                 if(APIService.isAuthentificated()) {
@@ -48,11 +48,12 @@ controllers.controller("homeController", function($scope, $ionicModal, growl, $i
 /////////////////////////////////////////////////////////////////////
 controllers.controller("mapController", function($scope, $ionicLoading, $ionicModal, $timeout, $q, growl, APIService, leafletEvents, miscsService, locationService) {
 
-    $scope.me = {};
-    $scope.me.centerLat = config.DEFAULT_LAT;
-    $scope.me.centerLng = config.DEFAULT_LNG;
-
     $scope.init = function() {
+
+        $scope.me = {};
+        $scope.me.centerLat = config.DEFAULT_LAT;
+        $scope.me.centerLng = config.DEFAULT_LNG;
+        $scope.marketsMap = new HashMap();
 
         miscsService.hideLoading();
         $scope.map = {
@@ -62,7 +63,8 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
                 map: {enable:  ["moveend", "zoomend", "contextmenu"], logic: "emit"},
                 markers: {enable: ["click"]}
             },
-            center: {lat: $scope.me.centerLat, lng: $scope.me.centerLng, zoom: config.DEFAULT_ZOOM}
+            center: {lat: $scope.me.centerLat, lng: $scope.me.centerLng, zoom: config.DEFAULT_ZOOM},
+            markers: []
         };
         $scope.mapDetail = {
             zoom: config.DEFAULT_DETAIL_ZOOM,
@@ -78,7 +80,6 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
             lat = position.lat;
             lng = position.lng;
         }).finally(function() {
-            console.log("finished", lat, lng, $scope.map.zoom);
             if(lat == undefined || lng == undefined) {
                 lat = config.DEFAULT_LAT;
                 lng = config.DEFAULT_LNG;
@@ -130,45 +131,56 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
     };
 
     $scope.getShops = function(SWLat, SWLng, NELat, NELng) {
-        miscsService.loading("Working", "fa-cloud","faa-flash");
+        miscsService.loading("Working");
         APIService.get("/shops/"+SWLat+"/"+SWLng+"/"+NELat+"/"+NELng).then(function(shops) {
-            growl.info(shops.length + " shops loaded for "+SWLat+" and "+SWLng+" and "+NELat+" and "+NELng);
-            $scope.map.markers = [];
-            $timeout(function() {
-                for (var i = 0; i < shops.length; i++) {
-                    var marker = {shop: shops[i], bounceOnAdd:true, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
-                    $scope.map.markers.push(marker);
+            if(config.DEBUG_MODE) growl.info(shops.length + " shops loaded for "+SWLat+" and "+SWLng+" and "+NELat+" and "+NELng);
+            for (var i = 0; i < shops.length; i++) {
+                if(!$scope.marketsMap.has(shops[i]._id.$id)) {
+                    $scope.marketsMap.set(shops[i]._id.$id, shops[i]);
+                    var marker = {shop: shops[i], bounceOnAdd:true, bounceOnAddOptions: {duration: 500, height: 20}, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
+                        //var marker = {shop: shops[i], lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
+                        $scope.map.markers.push(marker);
+                    }
                 }
+            }).catch(function(error) {
+                growl.error("Error : "+error);
+            }).finally(function() {
+                miscsService.hideLoading();
             });
-        }).catch(function(error) {
-            growl.error("Error : "+error);
-        }).finally(function() {
-            miscsService.hideLoading();
-        });
-    };
+        };
 
-    $scope.init();
+        $scope.init();
 
-});
+    });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("manageController", function($scope, $ionicLoading, $ionicModal, $timeout, growl, APIService, miscsService) {
+controllers.controller("manageController", function($scope, $ionicLoading, $ionicModal, $timeout, $ionicScrollDelegate, growl, APIService, miscsService) {
 
     $scope.dataFetched = false;
     $scope.loading = false;
     $scope.filter = {};
+    $scope.filter.name = "";
     $scope.page = -1;
     $scope.shops = [];
     $scope.end = false;
+
+    $scope.shortcuts = {
+        "ctrl+up": function() {$ionicScrollDelegate.scrollTop()},
+        "ctrl+down": function() {$ionicScrollDelegate.scrollBottom()}
+    };
 
     $scope.getShops = function() {
         if(!$scope.loading) {
             $scope.loading = true;
             $scope.page++;
-            APIService.get("/shops/"+$scope.page).then(function(shops) {
+            var route = "/shops/last/"+$scope.page;
+            if($scope.filter.name != "") {
+                route = "/shops/search/"+$scope.filter.name+"/"+$scope.page;
+            }
+            APIService.get(route).then(function(shops) {
                 if(shops.length) {
                     $scope.dataFetched = true;
-                    growl.info(shops.length + " shops loaded for page "+$scope.page);
+                    if(config.DEBUG_MODE) growl.info(shops.length + " shops loaded for page "+$scope.page+" and name "+$scope.filter.name);
                     Array.prototype.push.apply($scope.shops, shops);
                 }
                 else {
@@ -185,14 +197,20 @@ controllers.controller("manageController", function($scope, $ionicLoading, $ioni
         }
     };
 
-    //TODO PROGRESSIVE LOAD + FILTER
+    $scope.scrollTop = function() {
+
+    };
+
     // ON CLICK EDIT
     // AND ADD
 
-    $scope.doRefresh = function() {
-        miscsService.loading("Working", "fa-cloud","faa-flash");
+    $scope.doFilter = function() {
+        miscsService.loading("Working");
+        $scope.shops = [];
+        $scope.page = -1;
+        $scope.end = false;
         $scope.getShops();
-    };
+    }
 
     $scope.doRefreshBottom = function() {
         $scope.getShops();
@@ -201,9 +219,11 @@ controllers.controller("manageController", function($scope, $ionicLoading, $ioni
     $scope.doRefreshPull = function() {
         $scope.shops = [];
         $scope.page = -1;
+        $scope.end = false;
         $scope.getShops();
     };
 
-    $scope.doRefresh();
+    miscsService.loading("Working");
+    $scope.getShops();
 
 });

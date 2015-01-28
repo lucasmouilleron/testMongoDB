@@ -126,8 +126,8 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
 
 /////////////////////////////////////////////////////////////////////
 services.factory("miscsService", function($state, $ionicHistory, $interval, $ionicLoading) {
-	return {
-
+	
+    return {
         loaderCount: 0,
         lastShow: 0,
         minDuration: 400,
@@ -161,6 +161,7 @@ services.factory("miscsService", function($state, $ionicHistory, $interval, $ion
             var ivl = $interval(function() {
                 if(Date.now() - that.lastShow > that.minDuration && that.loaderCount <= 0) {
                     $interval.cancel(ivl);
+                    console.log("hide", Date.now());
                     $ionicLoading.hide();
                 }
             }, 100);

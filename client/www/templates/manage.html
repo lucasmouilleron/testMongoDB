@@ -1,11 +1,27 @@
 <ion-view view-title="Manage">
 <ion-content>
 
+<span mousetrap-keypress="shortcuts"></span>
+
+<form novalidate ng-submit="doFilter()" name="filterForm">
+	<div class="list">
+		<label class="item item-input">
+			<span class="input-label">Name</span>
+			<input type="text" ng-model="filter.name"/>
+		</label>		
+		<label class="item">
+			<button ng-disabled="filterForm.$invalid" class="button button-block button-positive" type="submit">Filter</button>
+		</label>
+	</div>
+</form>
+
 <div ng-if="dataFetched" class="anim-fade">
-    <ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
-    <ion-list>
-    <ion-item ng-repeat="shop in shops" class="item-text-wrap">
-    {{shop}}
+	<ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
+	<ion-list>
+	<ion-item ng-repeat="shop in shops" class="item-text-wrap">
+	<h2>{{shop.name}}</h2>
+	<p>{{shop.address.street}}</p>
+	<p>{{shop.address.zip}} {{shop.address.city}}</p>
 </ion-item>
 </ion-list>
 <ion-infinite-scroll on-infinite="doRefreshBottom()" ng-if="!end" distance="1%"></ion-infinite-scroll>

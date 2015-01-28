@@ -70,7 +70,19 @@ $app->post("/shop/edit", function () use ($app) {
 });
 
 /////////////////////////////////////////////////////////////////
-$app->get("/shops/:page", function ($page) use ($app) {
+$app->get("/shops/search/:name/:page", function ($name, $page) use ($app) {
+    $shops = [];
+    $shopsDB = Tools::getDB()->shops;
+    $step = MAX_STORES;
+    $results = $shopsDB->find(array("name"=> new MongoRegex("/".$name."/i")))->sort(array("date" => -1))->limit($step)->skip($page*$step);
+    foreach($results as $result) {
+        $shops[] = $result;
+    }
+    echo json_encode($shops);
+});
+
+/////////////////////////////////////////////////////////////////
+$app->get("/shops/last/:page", function ($page) use ($app) {
     $shops = [];
     $shopsDB = Tools::getDB()->shops;
     $step = MAX_STORES;

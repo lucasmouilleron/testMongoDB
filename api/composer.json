@@ -4,7 +4,8 @@
         "slim/slim": "2.*",
         "rmccue/requests": ">=1.0",
         "firebase/php-jwt": "~1.0",
-        "palanik/corsslim": "0.0.1"
+        "palanik/corsslim": "0.0.1",
+        "fzaninotto/faker": "1.4.0"
     },
     "config": {
         "vendor-dir": "libs/vendor"

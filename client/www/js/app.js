@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-var app = angular.module("app", ["ionic", "app.controllers", "app.services", "app.directives", "app.filters", "angular-growl", "leaflet-directive"]);
+var app = angular.module("app", ["ionic", "app.controllers", "app.services", "app.directives", "app.filters", "angular-growl", "leaflet-directive", "mousetrap"]);
 var controllers = angular.module("app.controllers", []);
 var directives = angular.module("app.directives", []);
 var services = angular.module("app.services", []);

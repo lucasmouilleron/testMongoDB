@@ -20,12 +20,13 @@ $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiZXh0c
 //$request = Requests::get(getAPIURL()."/private");
 //$request = Requests::get(getAPIURL()."/private/lucas", array("token" => $token));
 
-/*for ($i=0; $i < 10000; $i++) { 
+$faker = Faker\Factory::create();
+for ($i=0; $i < 10000; $i++) { 
 	$point = Tools::generateRandomPoint(DEFAULT_LAT, DEFAULT_LNG, 100);
-	$request = Requests::post(Tools::getBaseURL()."/shop/edit", array("token"=> $token), array("name"=>Tools::generateRandomString(), "street"=> Tools::generateRandomString(40), "city"=>Tools::generateRandomString(), "zip"=>Tools::generateRandomString(5), "lat"=>$point[0], "lng"=>$point[1]));
-}*/
+	$request = Requests::post(Tools::getBaseURL()."/shop/edit", array("token"=> $token), array("name"=>$faker->company, "street"=> $faker->streetAddress, "city"=>$faker->city, "zip"=>$faker->postcode, "lat"=>$point[0], "lng"=>$point[1]));
+}
 
 //$request = Requests::get(Tools::getAPIURL()."/shops/".TEST_LAT."/".TEST_LNG);
-var_dump($request->body);
+//var_dump($request->body);
 
 ?>
