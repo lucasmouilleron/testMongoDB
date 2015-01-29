@@ -33,7 +33,8 @@
     "tmp-bower-vendors/hashmap/hashmap.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/angular-mousetrap/src/keypress.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/mousetrap/mousetrap.js":"../www/js/libs/vendor",
-    "tmp-bower-vendors/geocoder-service/geocoder-service.js":"../www/js/libs/vendor"
+    "tmp-bower-vendors/geocoder-service/geocoder-service.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/geolib/dist/geolib.js":"../www/js/libs/vendor"
   },
 
   "installCommands":[

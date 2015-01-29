@@ -12,6 +12,7 @@
     "font-awesome-animation": "~0.0.6",
     "hashmap": "~2.0.0",
     "angular-mousetrap": "~1.0.0",
-    "geocoder-service": "~0.0.2"
+    "geocoder-service": "~0.0.2",
+    "geolib": "~2.0.9"
   }
 }

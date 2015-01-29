@@ -5,7 +5,7 @@ services.factory("locationService", function($state, $q, $http, $ionicHistory) {
             var deferred = $q.defer();
             try {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    //$cordovaGeolocation.getCurrentPosition().then(function (position) 
+                    
                         deferred.resolve({lat: position.coords.latitude, lng: position.coords.longitude});
                     }, function(err) {
                         deferred.reject(new Error("can't retrieve location"));
@@ -81,7 +81,8 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         },
 
         ////////////////////////////////////////////////////////////////////////////////
-        post: function(route, params, successCallback, errorCallback) {
+        post: function(route, params) {
+            var deferred = $q.defer();
             $http({
                 method: "POST",
                 url: this.getURL(route),
@@ -89,15 +90,33 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
                 headers: {"Content-Type": "application/x-www-form-urlencoded", "token":localStorage.getItem("token")}
             })
             .success(function(data, status) {
-                successCallback(data);
+                deferred.resolve(data);
             }).
-            error(function(data, status) {
-                errorCallback(data, status);
+            error(function(error, status) {
+                deferred.reject(new Error(error));
             });
+            return deferred.promise;
         },
 
         ////////////////////////////////////////////////////////////////////////////////
-        get: function(route, successCallback, errorCallback) {
+        delete: function(route) {
+            var deferred = $q.defer();
+            $http({
+                method: "DELETE",
+                url: this.getURL(route),
+                headers: {"token":localStorage.getItem("token")}
+            })
+            .success(function(data, status) {
+                deferred.resolve(data);
+            }).
+            error(function(error, status) {
+                deferred.reject(new Error(error));
+            });
+            return deferred.promise;
+        },
+
+        ////////////////////////////////////////////////////////////////////////////////
+        get: function(route) {
         	var deferred = $q.defer();
             $http({
                 method: "GET",
@@ -125,19 +144,40 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
 });
 
 /////////////////////////////////////////////////////////////////////
-services.factory("miscsService", function($state, $ionicHistory, $interval, $ionicLoading) {
+services.factory("miscsService", function($state, $ionicHistory, $rootScope, $interval, $ionicLoading, $timeout) {
 	
     return {
         loaderCount: 0,
         lastShow: 0,
         minDuration: 400,
+        reloads: new HashMap(),
+
+        initReloads: function() {
+            $rootScope.$on("$ionicView.enter", function(scope, state) {
+                if(state.fromCache) {
+                    $rootScope.$broadcast("shouldTestReloads", state);
+                }
+            });
+        },
+
+        shouldReload: function(state) {
+            this.reloads.set(state, true);
+        },
+
+        didReload: function(state) {
+            this.reloads.remove(state);
+        },
+
+        needsReload: function(state) {
+            return this.reloads.has(state, true);
+        },
 
         goWithoutHistory: function(newState) {
             $ionicHistory.nextViewOptions({
                 disableAnimate: true,
                 disableBack: true
-            });   
-            $state.go(newState, {}, {reload:true});
+            });
+            $state.transitionTo(newState, {});
         },
 
         loading: function(loadingText, loadingIcon, loadingAnimation) {

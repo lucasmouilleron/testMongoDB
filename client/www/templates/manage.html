@@ -1,7 +1,12 @@
 <ion-view view-title="Manage">
-<ion-content>
+
+<ion-nav-buttons side="right">
+<button ng-click="doAdd()" class="button button-icon icon ion-plus"></button>
+</ion-nav-buttons>
 
 <span mousetrap-keypress="shortcuts"></span>
+
+<ion-content>
 
 <form novalidate ng-submit="doFilter()" name="filterForm">
 	<div class="list">
@@ -15,7 +20,7 @@
 	</div>
 </form>
 
-<div ng-if="dataFetched" class="anim-fade">
+<div ng-if="!!shops.length" class="anim-fade">
 	<ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
 	<ion-list>
 	<ion-item ng-repeat="shop in shops" class="item-text-wrap" ng-click="doAction(shop)">

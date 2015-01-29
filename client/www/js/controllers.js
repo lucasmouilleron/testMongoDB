@@ -101,61 +101,62 @@ controllers.controller("mapController", function($scope, $ionicModal, $timeout, 
                 $scope.me.NELng = $scope.map.bounds.northEast.lng;
                 $scope.me.centerLat = $scope.map.center.lat;
                 $scope.me.centerLng = $scope.map.center.lng;
-                $scope.getShops($scope.me.SWLat, $scope.me.SWLng, $scope.me.NELat, $scope.me.NELng);
+                $scope.me.widthInMeters = 0; 
+                $scope.me.widthInMeters = geolib.getDistance({latitude: $scope.me.SWLat, longitude: $scope.me.SWLng}, {latitude: $scope.me.NELat, longitude: $scope.me.NELng});
+                $scope.getShops($scope.me.centerLat, $scope.me.centerLng, $scope.me.widthInMeters);
             });
         }
     });
 
-    $scope.$on("leafletDirectiveMarker.click", function(event, locationEvent){
-        $scope.shopDetail = locationEvent.leafletEvent.target.options.shop;
-        $scope.mapDetail.center = {lat: $scope.shopDetail.loc.coordinates[0], lng: $scope.shopDetail.loc.coordinates[1], zoom: $scope.mapDetail.zoom};
-        $scope.mapDetail.markers = [{"shop": $scope.shopDetail, "lat": $scope.shopDetail.loc.coordinates[0], "lng": $scope.shopDetail.loc.coordinates[1]}];
-        $ionicModal.fromTemplateUrl("templates/shop.html", {
-            backdropClickToClose: false,
-            scope: $scope
-        }).then(function(modal) {
-            $scope.modal = modal;
-            $scope.modal.show();
-        });
+$scope.$on("leafletDirectiveMarker.click", function(event, locationEvent){
+    $scope.shopDetail = locationEvent.leafletEvent.target.options.shop;
+    $scope.mapDetail.center = {lat: $scope.shopDetail.loc.coordinates[0], lng: $scope.shopDetail.loc.coordinates[1], zoom: $scope.mapDetail.zoom};
+    $scope.mapDetail.markers = [{"shop": $scope.shopDetail, "lat": $scope.shopDetail.loc.coordinates[0], "lng": $scope.shopDetail.loc.coordinates[1]}];
+    $ionicModal.fromTemplateUrl("templates/shop.html", {
+        backdropClickToClose: false,
+        scope: $scope
+    }).then(function(modal) {
+        $scope.modal = modal;
+        $scope.modal.show();
     });
+});
 
-    $scope.$on("leafletDirectiveMap.zoomend", function(event, zoomEvent){
-        var mapID = zoomEvent.leafletEvent.target._container.id;
-        if(mapID == "map") {
-            $scope.map.zoom = zoomEvent.leafletEvent.target.getZoom();  
-        }
-    });
+$scope.$on("leafletDirectiveMap.zoomend", function(event, zoomEvent){
+    var mapID = zoomEvent.leafletEvent.target._container.id;
+    if(mapID == "map") {
+        $scope.map.zoom = zoomEvent.leafletEvent.target.getZoom();  
+    }
+});
 
-    $scope.closeShop = function() {
-        $scope.modal.remove();
-    };
+$scope.closeShop = function() {
+    $scope.modal.remove();
+};
 
-    $scope.getShops = function(SWLat, SWLng, NELat, NELng) {
-        miscsService.loading("Working");
-        APIService.get("/shops/"+SWLat+"/"+SWLng+"/"+NELat+"/"+NELng).then(function(shops) {
-            if(config.DEBUG_MODE) growl.info(shops.length + " shops loaded for "+SWLat+" and "+SWLng+" and "+NELat+" and "+NELng);
-            for (var i = 0; i < shops.length; i++) {
-                if(!$scope.marketsMap.has(shops[i]._id.$id)) {
-                    $scope.marketsMap.set(shops[i]._id.$id, shops[i]);
-                    var marker = {shop: shops[i], bounceOnAdd:true, bounceOnAddOptions: {duration: 500, height: 20}, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
-                    $scope.map.markers.push(marker);
-                }
+$scope.getShops = function(lat, lng, distanceInMeters) {
+    miscsService.loading("Working");
+    APIService.get("/shops/"+lat+"/"+lng+"/"+distanceInMeters).then(function(shops) {
+        if(config.DEBUG_MODE) growl.info(shops.length + " shops loaded for "+lat+" and "+lng+" and distance "+distanceInMeters);
+        for (var i = 0; i < shops.length; i++) {
+            if(!$scope.marketsMap.has(shops[i]._id.$id)) {
+                $scope.marketsMap.set(shops[i]._id.$id, shops[i]);
+                var marker = {shop: shops[i], bounceOnAdd:true, bounceOnAddOptions: {duration: 500, height: 20}, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
+                $scope.map.markers.push(marker);
             }
-        }).catch(function(error) {
-            growl.error("Error : "+error);
-        }).finally(function() {
-            miscsService.hideLoading();
-        });
-    };
+        }
+    }).catch(function(error) {
+        growl.error("Error : "+error);
+    }).finally(function() {
+        miscsService.hideLoading();
+    });
+};
 
-    $scope.init();
+$scope.init();
 
 });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("manageController", function($scope, $ionicScrollDelegate, $state, $stateParams, growl, APIService, miscsService) {
+controllers.controller("manageController", function($scope, $ionicScrollDelegate, $state, $stateParams, $rootScope, $ionicHistory, growl, APIService, miscsService) {
 
-    $scope.dataFetched = false;
     $scope.loading = false;
     $scope.filter = {};
     $scope.filter.name = "";
@@ -178,7 +179,6 @@ controllers.controller("manageController", function($scope, $ionicScrollDelegate
             }
             APIService.get(route).then(function(shops) {
                 if(shops.length) {
-                    $scope.dataFetched = true;
                     if(config.DEBUG_MODE) growl.info(shops.length + " shops loaded for page "+$scope.page+" and name "+$scope.filter.name);
                     Array.prototype.push.apply($scope.shops, shops);
                 }
@@ -197,10 +197,12 @@ controllers.controller("manageController", function($scope, $ionicScrollDelegate
     };
 
     $scope.doAction = function(shop) {
-        $state.go("app.edit", {shopID: shop._id.$id});
+        $state.go("app.editShop", {shopID: shop._id.$id});
     };
 
-    // ON CLICK EDIT AND ADD
+    $scope.doAdd = function() {
+        $state.go("app.addShop");
+    };
 
     $scope.doFilter = function() {
         miscsService.loading("Working");
@@ -221,13 +223,19 @@ controllers.controller("manageController", function($scope, $ionicScrollDelegate
         $scope.getShops();
     };
 
-    miscsService.loading("Working");
-    $scope.getShops();
+    $rootScope.$on("shouldTestReloads", function(scope, state) {
+        if(state.stateName == $state.current.name && miscsService.needsReload($state.current.name)) {
+            miscsService.didReload($state.current.name);
+            $scope.doFilter();
+        }
+    });
+
+    $scope.doFilter();
 
 });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("editController", function($scope, $stateParams, $ionicPopup, $ionicHistory, growl, APIService, miscsService, geocoderService) {
+controllers.controller("editController", function($scope, $stateParams, $ionicPopup, $ionicHistory, $rootScope, growl, locationService, APIService, miscsService, geocoderService) {
 
     $scope.shopID = $stateParams.shopID;
 
@@ -237,9 +245,13 @@ controllers.controller("editController", function($scope, $stateParams, $ionicPo
             $scope.shop = shop;
             if($scope.shop == false) {
                 growl.error("Shop "+$scope.shopID+" does not exist");
-                miscsService.goWithoutHistory("app.manage");
+                miscsService.goWithoutHistory("app.manageShops");
             }
-            console.log($scope.shop.address.street);
+            else {
+                $scope.shopLat = $scope.shop.loc.coordinates[0];
+                $scope.shopLat = $scope.shop.loc.coordinates[1];
+                $scope.initMap();    
+            }
         }).catch(function(error) {
             growl.error("Error : "+error);
         }).finally(function() {
@@ -253,8 +265,19 @@ controllers.controller("editController", function($scope, $stateParams, $ionicPo
             template: "Do you want to save ?"
         }).then(function(res) {
             if(res) {
-                //TODO SAVE
-                console.log("save");
+                miscsService.loading("Working");
+                var data = {name:$scope.shop.name, street:$scope.shop.address.street, city:$scope.shop.address.city, zip:$scope.shop.address.zip, lat:$scope.shop.loc.coordinates[0], lng:$scope.shop.loc.coordinates[1]};
+                if($scope.shopID) {
+                    data.id = $scope.shopID;
+                }
+                APIService.post("/shop/edit", data).then(function(shop) {
+                    growl.info("Shop saved "+shop);
+                    miscsService.shouldReload("app.manageShops");
+                }).catch(function(error) {
+                    growl.error("Error : "+error);
+                }).finally(function() {
+                    miscsService.hideLoading();
+                });
             }
         });
     };
@@ -265,20 +288,50 @@ controllers.controller("editController", function($scope, $stateParams, $ionicPo
             template: "Do you want to delete ?"
         }).then(function(res) {
             if(res) {
-                //TODO DELETE
-                $ionicHistory.goBack();
+                APIService.delete("/shop/"+$scope.shopID).then(function(deleted) {
+                    if(!deleted) {
+                        growl.error("Can't delete shop "+$scope.shopID);
+                    }
+                    else {
+                        growl.info("Shop "+$scope.shopID+" deleted");
+                        miscsService.shouldReload("app.manageShops");
+                        miscsService.goWithoutHistory("app.manageShops");
+                    }
+                }).catch(function(error) {
+                    growl.error("Error : "+error);
+                }).finally(function() {
+                    miscsService.hideLoading();
+                });
             }
         });
     };
 
-    $scope.doLocalize = function() {
+    $scope.doLocalizeCurrentPosition = function() {
+        var lat, lng;
+        miscsService.loading("Acquiring location", "fa-location-arrow","faa-ring");
+        locationService.getLocation().then(function(position) {
+            lat = position.lat;
+            lng = position.lng;
+        }).finally(function() {
+            if(lat == undefined || lng == undefined) {
+                growl.error("Can't locate !");
+            }
+            else {
+                $scope.shop.loc.coordinates[0] = lat;
+                $scope.shop.loc.coordinates[1] = lng;
+                growl.info("Current position geocoded !");
+            }
+            miscsService.hideLoading();
+        });
+    };
+
+    $scope.doLocalizeAddress = function() {
         miscsService.loading("Working");
-        $scope.address = $scope.shop.address.street+" "+$scope.shop.address.city+" "+$scope.shop.address.zip;
-        //$scope.address = "1600 Pennsylvania Avenue NW, Washington, D.C. 20500";
+        $scope.address = $scope.shop.address.street+" "+$scope.shop.address.city+" "+$scope.shop.address.zip+" france";
         geocoderService.getLatLong($scope.address).then(function(latlng){
             $scope.shop.loc.coordinates[0] = latlng.lat();
             $scope.shop.loc.coordinates[1] = latlng.lng();
-            if(config.DEBUG_MODE) growl.info("Address "+$scope.address+" geocoded !");
+            growl.info("Address "+$scope.address+" geocoded !");
         }).catch(function(error) {
             growl.error("Can't localize address "+$scope.address);
         }).finally(function() {
@@ -286,6 +339,37 @@ controllers.controller("editController", function($scope, $stateParams, $ionicPo
         });
     };
 
-    $scope.getShop();
+    $scope.initMap = function() {
+        $scope.mapEdit = {
+            zoom: config.DEFAULT_DETAIL_ZOOM,
+            defaults: {tileLayer: config.MAP_TILE_URL, dragging: false, maxZoom: config.MAX_ZOOM, zoomControlPosition: "bottomleft", zoomControl:false}
+        };
+        $scope.updateMarker();
+    };
+
+    $scope.updateMarker = function() {
+        var lat = parseFloat($scope.shop.loc.coordinates[0]) || 0;
+        var lng = parseFloat($scope.shop.loc.coordinates[1]) || 0;
+        if($scope.mapEdit) {
+            $scope.mapEdit.markers = [{"shop": $scope.shop, "lat": lat, "lng": lng}];
+            $scope.mapEdit.center = {lat: lat, lng: lng, zoom: config.DEFAULT_ZOOM};
+        }
+    };
+
+    $scope.$watch("shop.loc.coordinates", function() {
+        $scope.updateMarker();
+    }, true);
+
+    $scope.shop = {};
+    $scope.shop.loc = {};
+    $scope.shop.loc.coordinates = [0, 0];
+    $scope.shop.address = {};
+
+    if($scope.shopID) {
+        $scope.getShop();
+    }
+    else {
+        $scope.initMap();
+    }
 
 });

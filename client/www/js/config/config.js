@@ -24,7 +24,7 @@ var config = {
     ////////////////////////////////////////////////////////////////////////////////
     DEFAULT_LAT: 45.7592400,
     DEFAULT_LNG: 4.8411810,
-    DEFAULT_ZOOM: 16,
+    DEFAULT_ZOOM: 17,
     DEFAULT_DETAIL_ZOOM: 18,
     MIN_ZOOM: 1,
     MAX_ZOOM: 18

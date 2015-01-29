@@ -55,34 +55,6 @@ var tools = {
 		},
 
 		////////////////////////////////////////////////////////////////////////////////
-		convertCompletionFlagToString: function(completionFlag) {
-			if (completionFlag === config.COMPLETION_FLAG_NOT_AVAILABLE_FOR_DAY) {
-				return "not available for day";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_NO_DATA) {
-				return "no data";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_NO_CPL_DATA) {
-				return "no cpl data";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_FLAG_FETCHED) {
-				return "fetched";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_FLAG_COMPUTED) {
-				return "computed";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_CHECKED_OK) {
-				return "checked ok";
-			}
-			else if (completionFlag === config.COMPLETION_FLAG_CHECKED_KO) {
-				return "checked ko";
-			}
-			else {
-				return "unknown";
-			}
-		},
-
-		////////////////////////////////////////////////////////////////////////////////
 		serializeData: function (data) { 
 
 			if ( ! angular.isObject( data ) ) { 

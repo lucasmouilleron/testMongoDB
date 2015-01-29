@@ -13,6 +13,8 @@ app.run(function($ionicPlatform, $rootScope, $state, APIService, miscsService) {
     $rootScope.tools = tools;
     $rootScope.config = config;
 
+    miscsService.initReloads();
+
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
         if(toState.name != "app.home" && !APIService.isAuthentificated() && config.ADMIN_MODE) {
             if(toState.name != "app.home") {
@@ -48,8 +50,8 @@ app.config(function($stateProvider, $urlRouterProvider) {
         }
     });
 
-    $stateProvider.state("app.manage", {
-        url: "/manage",
+    $stateProvider.state("app.manageShops", {
+        url: "/shops/manage",
         views: {
             "menuContent": {
                 templateUrl: "templates/manage.html",
@@ -58,9 +60,20 @@ app.config(function($stateProvider, $urlRouterProvider) {
         }
     });
 
-    $stateProvider.state("app.edit", {
+    $stateProvider.state("app.editShop", {
         cache: false,
-        url: "/edit/:shopID",
+        url: "/shop/edit/:shopID",
+        views: {
+            "menuContent": {
+                templateUrl: "templates/edit.html",
+                controller: "editController"
+            }
+        }
+    });
+
+    $stateProvider.state("app.addShop", {
+        cache: false,
+        url: "/shop/add",
         views: {
             "menuContent": {
                 templateUrl: "templates/edit.html",

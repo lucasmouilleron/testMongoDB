@@ -28,7 +28,7 @@ $app->add($JWTAuthenticationMiddleware);
 // ERRORS
 /////////////////////////////////////////////////////////////////
 $app->error(function ($e) use ($app) {
- $app->halt(500, "Server error");
+    $app->halt(500, "Server error");
 });
 $app->notFound(function () use ($app) {
     $app->halt(404, json_encode("Not found"));
@@ -60,15 +60,39 @@ $app->post("/shop/edit", function () use ($app) {
         $lat = floatval($app->request->post("lat"));
         $lng = floatval($app->request->post("lng"));
         $date = time()*1000;
+        $id = filter_var($app->request->post("id"), FILTER_SANITIZE_STRING);
         $document = array("name" => $name, "date"=> $date, "address" => array("street" => $street, "zip" => $zip, "city" => $city), "loc" => array("type" => "Point", "coordinates" => array($lat, $lng)));
         $shopsDB = Tools::getDB()->shops;
-        $result = $shopsDB->insert($document);
-        echo json_encode($document["_id"]->{'$id'});
+        if($id) {
+            $result = $shopsDB->update(array("_id" => new MongoId($id)), $document);
+            if($result["nModified"] < 1) throw new Exception("non modified");
+        }
+        else {
+            $result = $shopsDB->insert($document);
+            $id = $document["_id"]->{'$id'};
+        }
+        echo json_encode($id);
     } catch(Exception $e) {
         if(DEBUG) throw $e;
         echo json_encode(false);
     }
 });
+
+
+/////////////////////////////////////////////////////////////////
+$app->delete("/shop/:shopID", function ($shopID) use ($app) {
+    $shopID = filter_var($shopID, FILTER_SANITIZE_STRING);
+    $shopsDB = Tools::getDB()->shops;
+    try {
+        $result = $shopsDB->remove(array("_id" => new MongoId($shopID)));
+        if($result["n"] < 1) throw new Exception("non deleted");
+        echo json_encode(true);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode(false);
+    }
+});
+
 
 /////////////////////////////////////////////////////////////////
 $app->get("/shop/:shopID", function ($shopID) use ($app) {
@@ -119,13 +143,14 @@ $app->get("/shops/last/:page", function ($page) use ($app) {
 });
 
 /////////////////////////////////////////////////////////////////
-$app->get("/shops/:lat/:lng", function ($lat, $lng) use ($app) {
+$app->get("/shops/:lat/:lng/:distanceInMeters", function ($lat, $lng, $distanceInMeters) use ($app) {
     try {
         $lat = floatval($lat);
         $lng = floatval($lng);
+        $distanceInMeters = intval($distanceInMeters);
         $shops = [];
         $shopsDB = Tools::getDB()->shops;
-        $results = $shopsDB->find(array("loc" => array('$near' => array("type" => "Point", "coordinates" => array($lat, $lng)))))->limit(MAX_STORES);
+        $results = $shopsDB->find(array("loc" => array('$near' => array("type" => "Point", "coordinates" => array($lat, $lng)), '$maxDistance' => $distanceInMeters)))->limit(MAX_STORES);
         foreach($results as $result) {
             $shops[] = $result;
         }
