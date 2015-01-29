@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-var app = angular.module("app", ["ionic", "app.controllers", "app.services", "app.directives", "app.filters", "angular-growl", "leaflet-directive", "mousetrap"]);
+var app = angular.module("app", ["ionic", "app.controllers", "app.services", "app.directives", "app.filters", "angular-growl", "leaflet-directive", "mousetrap", "geocoder-service"]);
 var controllers = angular.module("app.controllers", []);
 var directives = angular.module("app.directives", []);
 var services = angular.module("app.services", []);
@@ -56,7 +56,18 @@ app.config(function($stateProvider, $urlRouterProvider) {
                 controller: "manageController"
             }
         }
-    }); 
+    });
+
+    $stateProvider.state("app.edit", {
+        cache: false,
+        url: "/edit/:shopID",
+        views: {
+            "menuContent": {
+                templateUrl: "templates/edit.html",
+                controller: "editController"
+            }
+        }
+    });
 
     $stateProvider.state("app.map", {
         cache: false,

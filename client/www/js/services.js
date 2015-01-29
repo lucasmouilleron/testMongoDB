@@ -161,7 +161,6 @@ services.factory("miscsService", function($state, $ionicHistory, $interval, $ion
             var ivl = $interval(function() {
                 if(Date.now() - that.lastShow > that.minDuration && that.loaderCount <= 0) {
                     $interval.cancel(ivl);
-                    console.log("hide", Date.now());
                     $ionicLoading.hide();
                 }
             }, 100);

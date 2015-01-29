@@ -9,7 +9,7 @@ controllers.controller("appController", function($scope, miscsService, APIServic
 });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("homeController", function($scope, $ionicModal, growl, $ionicLoading, $state, miscsService, APIService) {
+controllers.controller("homeController", function($scope, $ionicModal, growl, $state, miscsService, APIService) {
 
     if (!APIService.isAuthentificated() && config.ADMIN_MODE) {
 
@@ -46,7 +46,7 @@ controllers.controller("homeController", function($scope, $ionicModal, growl, $i
 });
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("mapController", function($scope, $ionicLoading, $ionicModal, $timeout, $q, growl, APIService, leafletEvents, miscsService, locationService) {
+controllers.controller("mapController", function($scope, $ionicModal, $timeout, $q, growl, APIService, leafletEvents, miscsService, locationService) {
 
     $scope.init = function() {
 
@@ -58,7 +58,7 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
         miscsService.hideLoading();
         $scope.map = {
             zoom: config.DEFAULT_ZOOM,
-            defaults: {tileLayer: config.MAP_TILE_URL, maxZoom: 18, minZoom: 15, zoomControlPosition: "bottomleft"},
+            defaults: {tileLayer: config.MAP_TILE_URL, maxZoom: config.MAX_ZOOM, minZoom: config.MIN_ZOOM, zoomControlPosition: "bottomleft"},
             events: {
                 map: {enable:  ["moveend", "zoomend", "contextmenu"], logic: "emit"},
                 markers: {enable: ["click"]}
@@ -68,7 +68,7 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
         };
         $scope.mapDetail = {
             zoom: config.DEFAULT_DETAIL_ZOOM,
-            defaults: {tileLayer: config.MAP_TILE_URL, dragging: false, maxZoom: 18, zoomControlPosition: "bottomleft", zoomControl:false}
+            defaults: {tileLayer: config.MAP_TILE_URL, dragging: false, maxZoom: config.MAX_ZOOM, zoomControlPosition: "bottomleft", zoomControl:false}
         };
         $scope.locate();
     };
@@ -138,23 +138,22 @@ controllers.controller("mapController", function($scope, $ionicLoading, $ionicMo
                 if(!$scope.marketsMap.has(shops[i]._id.$id)) {
                     $scope.marketsMap.set(shops[i]._id.$id, shops[i]);
                     var marker = {shop: shops[i], bounceOnAdd:true, bounceOnAddOptions: {duration: 500, height: 20}, lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
-                        //var marker = {shop: shops[i], lat: shops[i].loc.coordinates[0], lng: shops[i].loc.coordinates[1]};
-                        $scope.map.markers.push(marker);
-                    }
+                    $scope.map.markers.push(marker);
                 }
-            }).catch(function(error) {
-                growl.error("Error : "+error);
-            }).finally(function() {
-                miscsService.hideLoading();
-            });
-        };
+            }
+        }).catch(function(error) {
+            growl.error("Error : "+error);
+        }).finally(function() {
+            miscsService.hideLoading();
+        });
+    };
 
-        $scope.init();
+    $scope.init();
 
-    });
+});
 
 /////////////////////////////////////////////////////////////////////
-controllers.controller("manageController", function($scope, $ionicLoading, $ionicModal, $timeout, $ionicScrollDelegate, growl, APIService, miscsService) {
+controllers.controller("manageController", function($scope, $ionicScrollDelegate, $state, $stateParams, growl, APIService, miscsService) {
 
     $scope.dataFetched = false;
     $scope.loading = false;
@@ -197,12 +196,11 @@ controllers.controller("manageController", function($scope, $ionicLoading, $ioni
         }
     };
 
-    $scope.scrollTop = function() {
-
+    $scope.doAction = function(shop) {
+        $state.go("app.edit", {shopID: shop._id.$id});
     };
 
-    // ON CLICK EDIT
-    // AND ADD
+    // ON CLICK EDIT AND ADD
 
     $scope.doFilter = function() {
         miscsService.loading("Working");
@@ -225,5 +223,69 @@ controllers.controller("manageController", function($scope, $ionicLoading, $ioni
 
     miscsService.loading("Working");
     $scope.getShops();
+
+});
+
+/////////////////////////////////////////////////////////////////////
+controllers.controller("editController", function($scope, $stateParams, $ionicPopup, $ionicHistory, growl, APIService, miscsService, geocoderService) {
+
+    $scope.shopID = $stateParams.shopID;
+
+    $scope.getShop = function() {
+        miscsService.loading("Working");
+        APIService.get("/shop/"+$scope.shopID).then(function(shop) {
+            $scope.shop = shop;
+            if($scope.shop == false) {
+                growl.error("Shop "+$scope.shopID+" does not exist");
+                miscsService.goWithoutHistory("app.manage");
+            }
+            console.log($scope.shop.address.street);
+        }).catch(function(error) {
+            growl.error("Error : "+error);
+        }).finally(function() {
+            miscsService.hideLoading();
+        });
+    };
+
+    $scope.doEdit = function() {
+        confirmPopup = $ionicPopup.confirm({
+            title: "Confirm",
+            template: "Do you want to save ?"
+        }).then(function(res) {
+            if(res) {
+                //TODO SAVE
+                console.log("save");
+            }
+        });
+    };
+
+    $scope.doDelete = function() {
+        confirmPopup = $ionicPopup.confirm({
+            title: "Confirm",
+            template: "Do you want to delete ?"
+        }).then(function(res) {
+            if(res) {
+                //TODO DELETE
+                $ionicHistory.goBack();
+            }
+        });
+    };
+
+    $scope.doLocalize = function() {
+        miscsService.loading("Working");
+        $scope.address = $scope.shop.address.street+" "+$scope.shop.address.city+" "+$scope.shop.address.zip;
+        //$scope.address = "1600 Pennsylvania Avenue NW, Washington, D.C. 20500";
+        geocoderService.getLatLong($scope.address).then(function(latlng){
+            $scope.shop.loc.coordinates[0] = latlng.lat();
+            $scope.shop.loc.coordinates[1] = latlng.lng();
+            if(config.DEBUG_MODE) growl.info("Address "+$scope.address+" geocoded !");
+        }).catch(function(error) {
+            growl.error("Can't localize address "+$scope.address);
+        }).finally(function() {
+            miscsService.hideLoading();
+        });
+    };
+
+    $scope.getShop();
 
 });

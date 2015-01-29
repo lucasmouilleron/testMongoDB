@@ -27,8 +27,8 @@ $app->add($JWTAuthenticationMiddleware);
 /////////////////////////////////////////////////////////////////
 // ERRORS
 /////////////////////////////////////////////////////////////////
-$app->error(function (\Exception $e) use ($app) {
-    $app->halt(500, json_encode("Server error"));
+$app->error(function ($e) use ($app) {
+ $app->halt(500, "Server error");
 });
 $app->notFound(function () use ($app) {
     $app->halt(404, json_encode("Not found"));
@@ -52,73 +52,108 @@ $app->get("/login/:username/:password", function ($username, $password) use ($ap
 
 /////////////////////////////////////////////////////////////////
 $app->post("/shop/edit", function () use ($app) {
-    $name = filter_var($app->request->post("name"), FILTER_SANITIZE_STRING);
-    $city = filter_var($app->request->post("city"), FILTER_SANITIZE_STRING);
-    $zip = filter_var($app->request->post("zip"), FILTER_SANITIZE_STRING);
-    $street = filter_var($app->request->post("street"), FILTER_SANITIZE_STRING);
-    $lat = floatval($app->request->post("lat"));
-    $lng = floatval($app->request->post("lng"));
-    $date = time()*1000;
-    $document = array("name" => $name, "date"=> $date, "address" => array("street" => $street, "zip" => $zip, "city" => $city), "loc" => array("type" => "Point", "coordinates" => array($lat, $lng)));
     try {
+        $name = filter_var($app->request->post("name"), FILTER_SANITIZE_STRING);
+        $city = filter_var($app->request->post("city"), FILTER_SANITIZE_STRING);
+        $zip = filter_var($app->request->post("zip"), FILTER_SANITIZE_STRING);
+        $street = filter_var($app->request->post("street"), FILTER_SANITIZE_STRING);
+        $lat = floatval($app->request->post("lat"));
+        $lng = floatval($app->request->post("lng"));
+        $date = time()*1000;
+        $document = array("name" => $name, "date"=> $date, "address" => array("street" => $street, "zip" => $zip, "city" => $city), "loc" => array("type" => "Point", "coordinates" => array($lat, $lng)));
         $shopsDB = Tools::getDB()->shops;
         $result = $shopsDB->insert($document);
         echo json_encode($document["_id"]->{'$id'});
     } catch(Exception $e) {
-        echo json_encode(0);
+        if(DEBUG) throw $e;
+        echo json_encode(false);
+    }
+});
+
+/////////////////////////////////////////////////////////////////
+$app->get("/shop/:shopID", function ($shopID) use ($app) {
+    $shopID = filter_var($shopID, FILTER_SANITIZE_STRING);
+    $shopsDB = Tools::getDB()->shops;
+    try {
+        $shop = $shopsDB->findOne(array("_id" => new MongoId($shopID)));
+        if($shop == null) $shop = false;
+        echo json_encode($shop);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode(false);
     }
 });
 
 /////////////////////////////////////////////////////////////////
 $app->get("/shops/search/:name/:page", function ($name, $page) use ($app) {
-    $shops = [];
-    $shopsDB = Tools::getDB()->shops;
-    $step = MAX_STORES;
-    $results = $shopsDB->find(array("name"=> new MongoRegex("/".$name."/i")))->sort(array("date" => -1))->limit($step)->skip($page*$step);
-    foreach($results as $result) {
-        $shops[] = $result;
+    try {
+        $shops = [];
+        $shopsDB = Tools::getDB()->shops;
+        $step = MAX_STORES;
+        $results = $shopsDB->find(array("name"=> new MongoRegex("/".$name."/i")))->sort(array("date" => -1))->limit($step)->skip($page*$step);
+        foreach($results as $result) {
+            $shops[] = $result;
+        }
+        echo json_encode($shops);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode([]);
     }
-    echo json_encode($shops);
 });
 
 /////////////////////////////////////////////////////////////////
 $app->get("/shops/last/:page", function ($page) use ($app) {
-    $shops = [];
-    $shopsDB = Tools::getDB()->shops;
-    $step = MAX_STORES;
-    $results = $shopsDB->find()->sort(array("date" => -1))->limit($step)->skip($page*$step);
-    foreach($results as $result) {
-        $shops[] = $result;
+    try {
+        $shops = [];
+        $shopsDB = Tools::getDB()->shops;
+        $step = MAX_STORES;
+        $results = $shopsDB->find()->sort(array("date" => -1))->limit($step)->skip($page*$step);
+        foreach($results as $result) {
+            $shops[] = $result;
+        }
+        echo json_encode($shops);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode([]);   
     }
-    echo json_encode($shops);
 });
 
 /////////////////////////////////////////////////////////////////
 $app->get("/shops/:lat/:lng", function ($lat, $lng) use ($app) {
-    $lat = floatval($lat);
-    $lng = floatval($lng);
-    $shops = [];
-    $shopsDB = Tools::getDB()->shops;
-    $results = $shopsDB->find(array("loc" => array('$near' => array("type" => "Point", "coordinates" => array($lat, $lng)))))->limit(MAX_STORES);
-    foreach($results as $result) {
-        $shops[] = $result;
+    try {
+        $lat = floatval($lat);
+        $lng = floatval($lng);
+        $shops = [];
+        $shopsDB = Tools::getDB()->shops;
+        $results = $shopsDB->find(array("loc" => array('$near' => array("type" => "Point", "coordinates" => array($lat, $lng)))))->limit(MAX_STORES);
+        foreach($results as $result) {
+            $shops[] = $result;
+        }
+        echo json_encode($shops);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode([]);   
     }
-    echo json_encode($shops);
 });
 
 /////////////////////////////////////////////////////////////////
 $app->get("/shops/:SWLat/:SWLng/:NELat/:NELng", function ($SWLat, $SWLng, $NELat, $NELng) use ($app) {
-    $NELat = floatval($NELat);
-    $NELng = floatval($NELng);
-    $SWLat = floatval($SWLat);
-    $SWLng = floatval($SWLng);
-    $shops = [];
-    $shopsDB = Tools::getDB()->shops;
-    $results = $shopsDB->find(array("loc" => array('$within' => array('$box' => array(array($SWLat, $SWLng), array($NELat, $NELng))))))->limit(MAX_STORES);
-    foreach($results as $result) {
-        $shops[] = $result;
+    try {
+        $NELat = floatval($NELat);
+        $NELng = floatval($NELng);
+        $SWLat = floatval($SWLat);
+        $SWLng = floatval($SWLng);
+        $shops = [];
+        $shopsDB = Tools::getDB()->shops;
+        $results = $shopsDB->find(array("loc" => array('$within' => array('$box' => array(array($SWLat, $SWLng), array($NELat, $NELng))))))->limit(MAX_STORES);
+        foreach($results as $result) {
+            $shops[] = $result;
+        }
+        echo json_encode($shops);
+    } catch(Exception $e) {
+        if(DEBUG) throw $e;
+        echo json_encode([]);   
     }
-    echo json_encode($shops);
 });
 
 /////////////////////////////////////////////////////////////////

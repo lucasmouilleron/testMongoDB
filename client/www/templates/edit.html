@@ -1,0 +1,50 @@
+<ion-view view-title="Edit">
+<ion-content>
+
+<div class="list" ng-if="shop">
+	<form novalidate ng-submit="doEdit()" name="edit">
+		<div class="item item-divider">General</div>
+		<label class="item item-input">
+			<span class="input-label">ID</span>
+			<input type="text" ng-model="shopID" required disabled/>
+		</label>
+		<label class="item item-input">
+			<span class="input-label">Name</span>
+			<input type="text" ng-model="shop.name" required/>
+		</label>
+		<div class="item item-divider">Address</div>
+		<label class="item item-input">
+			<span class="input-label">Street</span>
+			<input type="text" ng-model="shop.address.street" required/>
+		</label>
+		<label class="item item-input item-icon-right">
+			<span class="input-label">Zip</span>
+			<input type="text" ng-model="shop.address.zip" required/>
+		</label>
+		<label class="item item-input">
+			<span class="input-label">City</span>
+			<input type="text" ng-model="shop.address.city" required/>
+		</label>
+		<div class="item item-divider">Loc</div>
+		<label class="item item-input">
+			<span class="input-label">Latitude</span>
+			<input type="number" ng-model="shop.loc.coordinates[0]" required/>
+		</label>
+		<label class="item item-input">
+			<span class="input-label">Longitude</span>
+			<input type="number" ng-model="shop.loc.coordinates[1]" required/>
+		</label>
+		<label class="item">
+			<button ng-disabled="edit.$invalid" class="button button-block button-positive" type="submit">Save</button>
+		</label>	
+	</form>
+	<label class="item">
+		<button class="button button-block button-royal" ng-click="doLocalize()">Localize address</button>
+	</label>
+	<label class="item">
+		<button class="button button-block button-assertive" ng-click="doDelete()">Delete</button>
+	</label>
+</div>
+
+</ion-content>
+</ion-view>

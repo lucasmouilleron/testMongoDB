@@ -18,7 +18,7 @@
 <div ng-if="dataFetched" class="anim-fade">
 	<ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
 	<ion-list>
-	<ion-item ng-repeat="shop in shops" class="item-text-wrap">
+	<ion-item ng-repeat="shop in shops" class="item-text-wrap" ng-click="doAction(shop)">
 	<h2>{{shop.name}}</h2>
 	<p>{{shop.address.street}}</p>
 	<p>{{shop.address.zip}} {{shop.address.city}}</p>
