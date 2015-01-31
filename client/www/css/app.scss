@@ -8,6 +8,8 @@
 @import "CSS:../../_build/tmp-bower-vendors/angular-growl-v2/build/angular-growl";
 @import "CSS:../../_build/tmp-bower-vendors/leaflet/dist/leaflet";
 @import "CSS:../../_build/tmp-bower-vendors/font-awesome-animation/dist/font-awesome-animation";
+@import "CSS:../../_build/tmp-bower-vendors/angular-loading-bar/src/loading-bar";
+
 $ionicons-font-path: "../fonts" !default;
 @import "../../_build/tmp-bower-vendors/ionic/scss/ionic";
 @import "../../_build/tmp-bower-vendors/components-font-awesome/scss/font-awesome";
@@ -22,6 +24,18 @@ $colorSuccess: green;
 $colorError: red;
 $colorAction: blue;
 
+#loading-bar .bar{
+	top:43px;
+	padding:0;
+	border-bottom:none;
+	background-color:none;
+}
+
+#loading-bar-spinner {
+	top:56px;
+	left:auto;
+	right:15px;
+}
 
 /*///////////////////////////////////////////////////////////////////////////*/
 /* SCREENS */

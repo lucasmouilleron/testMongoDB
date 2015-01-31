@@ -20,7 +20,7 @@
 	</div>
 </form>
 
-<div ng-if="!!shops.length" class="anim-fade">
+<div ng-if="shops" class="anim-fade">
 	<ion-refresher pulling-text="Pull to refresh..." on-refresh="doRefreshPull()"></ion-refresher>
 	<ion-list>
 	<ion-item ng-repeat="shop in shops" class="item-text-wrap" ng-click="doAction(shop)">

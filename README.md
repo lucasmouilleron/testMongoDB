@@ -53,13 +53,18 @@ Map API
 - Demo account created on https://developer.here.com/myapps/app-details/5twHHror0c2KgeiMxSzJ#/
 - More tiles http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 
+DBViewer
+--------
+- Edit `dbViewer/config.js`
+- `node dbViewer/app.js`
+- http://localhost:8081
+
 Miscs
 -----
 - //<?php $cursor = $shops->find()->sort(array("_id"=>-1))->limit($limit)->skip($skip);
 - console.log(leafletEvents.getAvailableMapEvents());
 - console.log(leafletEvents.getAvailableMarkerEvents());
 - http://l-lin.github.io/font-awesome-animation/
-- `sudo mongod --fork --logpath /var/log/mongodb.log --dbpath /Volumes/Data/Users/lmouille/Projects/haveidols/testMongoDB/data --auth`
-- `sudo mongod --fork --logpath /var/log/mongodb.log --dbpath /Users/lucas/Projects/haveidols/testMongoDB/data --auth`
+- `sudo mongod --fork --logpath /var/log/mongodb.log --dbpath $HOME/Projects/haveidols/testMongoDB/data --auth`
 - `mongo --host localhost --port 27017 --username admin --password iamagod admin --authenticationDatabase admin`
 - `mongodump --host localhost --port 27017 --username admin --password iamagod --authenticationDatabase admin --db main --collection shops`

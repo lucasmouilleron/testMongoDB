@@ -30,11 +30,11 @@
     "tmp-bower-vendors/angular-growl-v2/build/angular-growl.min.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/leaflet/dist/leaflet.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/angular-leaflet-directive/dist/angular-leaflet-directive.js":"../www/js/libs/vendor",
-    "tmp-bower-vendors/hashmap/hashmap.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/angular-mousetrap/src/keypress.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/mousetrap/mousetrap.js":"../www/js/libs/vendor",
     "tmp-bower-vendors/geocoder-service/geocoder-service.js":"../www/js/libs/vendor",
-    "tmp-bower-vendors/geolib/dist/geolib.js":"../www/js/libs/vendor"
+    "tmp-bower-vendors/geolib/dist/geolib.js":"../www/js/libs/vendor",
+    "tmp-bower-vendors/angular-loading-bar/src/loading-bar.js":"../www/js/libs/vendor"
   },
 
   "installCommands":[

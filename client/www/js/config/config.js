@@ -6,11 +6,10 @@ var config = {
 
     ////////////////////////////////////////////////////////////////////////////////
     ADMIN_MODE: true,
-    DEBUG_MODE: true,
+    DEBUG_MODE: false,
 
     ////////////////////////////////////////////////////////////////////////////////
     API_HOST: "localhost",
-    API_PORT: 80,
     API_URL: "testMongoDB/api",
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +25,6 @@ var config = {
     DEFAULT_LNG: 4.8411810,
     DEFAULT_ZOOM: 17,
     DEFAULT_DETAIL_ZOOM: 18,
-    MIN_ZOOM: 1,
+    MIN_ZOOM: 10,
     MAX_ZOOM: 18
 };

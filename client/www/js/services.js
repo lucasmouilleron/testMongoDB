@@ -5,11 +5,11 @@ services.factory("locationService", function($state, $q, $http, $ionicHistory) {
             var deferred = $q.defer();
             try {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    
-                        deferred.resolve({lat: position.coords.latitude, lng: position.coords.longitude});
-                    }, function(err) {
-                        deferred.reject(new Error("can't retrieve location"));
-                    });
+
+                    deferred.resolve({lat: position.coords.latitude, lng: position.coords.longitude});
+                }, function(err) {
+                    deferred.reject(new Error("can't retrieve location"));
+                });
             }
             catch(e) {
                 deferred.reject(new Error("can't retrieve location : "+e));
@@ -29,21 +29,16 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
         	var deferred = $q.defer();
         	try {
         		var that = this;
-        		this.post(
-                    "/login",
-                    {"username":username, "password":password},
-                    function(result) {
-                        if(result.token !== false) {
-                            that.authentificate(result.token);
-                        }
-                        deferred.resolve(result.token);
-                    },
-                    function(result) {
-                        deferred.resolve(false);
+        		this.post("/login", {"username":username, "password":password}).then(function(result) {
+                    if(result.token !== false) {
+                        that.authentificate(result.token);
                     }
-                    );
-        	}
-        	catch (e) {
+                    deferred.resolve(result.token);
+                }).catch(function(error) {
+                    deferred.resolve(false);
+                });
+            }
+            catch (e) {
                 deferred.resolve(false);
             }
             return deferred.promise;
@@ -144,32 +139,36 @@ services.factory("APIService", function($state, $q, $http, $ionicHistory) {
 });
 
 /////////////////////////////////////////////////////////////////////
-services.factory("miscsService", function($state, $ionicHistory, $rootScope, $interval, $ionicLoading, $timeout) {
+services.factory("miscsService", function($state, $ionicHistory, $rootScope, $interval, $ionicLoading, $timeout, cfpLoadingBar) {
 	
     return {
         loaderCount: 0,
         lastShow: 0,
         minDuration: 400,
-        reloads: new HashMap(),
+        reloads: {},
 
         initReloads: function() {
+            var that = this;
             $rootScope.$on("$ionicView.enter", function(scope, state) {
                 if(state.fromCache) {
                     $rootScope.$broadcast("shouldTestReloads", state);
                 }
+                else {
+                    that.didReload(state.stateName);
+                }
             });
         },
 
-        shouldReload: function(state) {
-            this.reloads.set(state, true);
+        shouldReload: function(stateName) {
+            this.reloads[stateName] = true;
         },
 
-        didReload: function(state) {
-            this.reloads.remove(state);
+        didReload: function(stateName) {
+            this.reloads[stateName] = false;
         },
 
-        needsReload: function(state) {
-            return this.reloads.has(state, true);
+        needsReload: function(stateName) {
+            return this.reloads[stateName];
         },
 
         goWithoutHistory: function(newState) {
@@ -178,6 +177,14 @@ services.factory("miscsService", function($state, $ionicHistory, $rootScope, $in
                 disableBack: true
             });
             $state.transitionTo(newState, {});
+        },
+
+        loadingBar: function() {
+            cfpLoadingBar.start();
+        },
+
+        hideLoadingBar: function() {
+            cfpLoadingBar.complete();
         },
 
         loading: function(loadingText, loadingIcon, loadingAnimation) {

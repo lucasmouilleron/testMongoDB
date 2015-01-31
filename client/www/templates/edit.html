@@ -1,54 +1,56 @@
 <ion-view view-title="Edit">
 <ion-content>
 
-<div class="list" ng-if="shop">
-	<form novalidate ng-submit="doEdit()" name="edit">
-		<div class="item item-divider">General</div>
-		<label class="item item-input" ng-if="shopID">
-			<span class="input-label">ID</span>
-			<input type="text" ng-model="shopID" disabled/>
-		</label>
-		<label class="item item-input">
-			<span class="input-label">Name</span>
-			<input type="text" ng-model="shop.name" required/>
-		</label>
-		<div class="item item-divider">Address</div>
-		<label class="item item-input">
-			<span class="input-label">Street</span>
-			<input type="text" ng-model="shop.address.street" required/>
-		</label>
-		<label class="item item-input item-icon-right">
-			<span class="input-label">Zip</span>
-			<input type="text" ng-model="shop.address.zip" required/>
-		</label>
-		<label class="item item-input">
-			<span class="input-label">City</span>
-			<input type="text" ng-model="shop.address.city" required/>
-		</label>
-		<div class="item item-divider">Location</div>
-		<label class="item item-input">
-			<span class="input-label">Latitude</span>
-			<input type="number" ng-model="shop.loc.coordinates[0]" required/>
-		</label>
-		<label class="item item-input">
-			<span class="input-label">Longitude</span>
-			<input type="number" ng-model="shop.loc.coordinates[1]" required/>
-		</label>
-		<label class="item item-input" ng-if="mapEdit">
-			<leaflet id="mapEdit" defaults="mapEdit.defaults" center="mapEdit.center" markers="mapEdit.markers" ng-if="mapEdit"></leaflet>
-		</label>
-		<label class="item">
-			<button ng-disabled="edit.$invalid" class="button button-block button-positive" type="submit"><i class="icon fa fa-save"></i> Save</button>
-		</label>	
-	</form>
-	<div class="item">
-		
-		<button class="button button-block button-royal" ng-click="doLocalizeCurrentPosition()"><i class="icon fa fa-crosshairs"></i> Localize current position</button> 
-		<button class="button button-block button-royal" ng-click="doLocalizeAddress()"><i class="icon fa fa-building"></i> Localize address</button>
-		
-	</div>
-	<div class="item">
-		<button class="button button-block button-assertive" ng-click="doDelete()"><i class="icon fa fa-trash"></i> Delete</button>
+<div ng-if="!shopID || shop.address.street" class="anim-fade">
+	<div class="list">
+		<form novalidate ng-submit="doEdit()" name="edit">
+			<div class="item item-divider">General</div>
+			<label class="item item-input" ng-if="shopID">
+				<span class="input-label">ID</span>
+				<input type="text" ng-model="shopID" disabled/>
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Name</span>
+				<input type="text" ng-model="shop.name" required/>
+			</label>
+			<div class="item item-divider">Address</div>
+			<label class="item item-input">
+				<span class="input-label">Street</span>
+				<input type="text" ng-model="shop.address.street" required/>
+			</label>
+			<label class="item item-input item-icon-right">
+				<span class="input-label">Zip</span>
+				<input type="text" ng-model="shop.address.zip" required/>
+			</label>
+			<label class="item item-input">
+				<span class="input-label">City</span>
+				<input type="text" ng-model="shop.address.city" required/>
+			</label>
+			<div class="item item-divider">Location</div>
+			<label class="item item-input">
+				<span class="input-label">Latitude</span>
+				<input type="number" ng-model="shop.loc.coordinates[0]" required/>
+			</label>
+			<label class="item item-input">
+				<span class="input-label">Longitude</span>
+				<input type="number" ng-model="shop.loc.coordinates[1]" required/>
+			</label>
+			<label class="item item-input">
+				<leaflet id="mapEdit" defaults="mapEdit.defaults" center="mapEdit.center" markers="mapEdit.markers" ng-if="mapEdit"></leaflet>
+			</label>
+			<label class="item">
+				<button ng-disabled="edit.$invalid" class="button button-block button-positive" type="submit"><i class="icon fa fa-save"></i> Save</button>
+			</label>	
+		</form>
+		<div class="item">
+			
+			<button class="button button-block button-royal" ng-click="doLocalizeCurrentPosition()"><i class="icon fa fa-crosshairs"></i> Localize current position</button> 
+			<button class="button button-block button-royal" ng-click="doLocalizeAddress()"><i class="icon fa fa-building"></i> Localize address</button>
+			
+		</div>
+		<div class="item">
+			<button class="button button-block button-assertive" ng-click="doDelete()"><i class="icon fa fa-trash"></i> Delete</button>
+		</div>
 	</div>
 </div>
 

@@ -10,9 +10,9 @@
     "leaflet": "~0.7.3",
     "angular-leaflet-directive": "~0.7.11",
     "font-awesome-animation": "~0.0.6",
-    "hashmap": "~2.0.0",
     "angular-mousetrap": "~1.0.0",
     "geocoder-service": "~0.0.2",
-    "geolib": "~2.0.9"
+    "geolib": "~2.0.9",
+    "angular-loading-bar": "~0.6.0"
   }
 }
